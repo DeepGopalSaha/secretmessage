@@ -1,16 +1,14 @@
 /* Reset & base styles */
+
 html, body {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #121212;
-    color: #e0e0e0;
+    font-family: font-family: "Noto Sans Mono", monospace;
+    background-color: #ffffff;
+    color: #222;
     min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
     box-sizing: border-box;
-    background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02) 0%, transparent 70%);
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
 *, *::before, *::after {
@@ -30,13 +28,11 @@ html, body {
 /* Headings */
 h1 {
     margin-bottom: 2rem;
-    color: #bb86fc;
+    color: #e48abf;
     text-align: center;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
 }
 
 /* Forms */
-
 form {
     width: 100%;
     max-width: 1200px;
@@ -46,12 +42,9 @@ form {
     flex-direction: column;
     align-items: center;
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(34,34,34,0.6), rgba(18,18,18,0.9));
-    box-shadow:
-        0 0 20px rgba(180, 134, 252, 0.3),
-        0 0 20px rgba(187, 134, 252, 0.2),
-        0 8px 20px rgba(0,0,0,0.4);
-    transition: box-shadow 0.3s, background-color 0.3s;
+    background: #ffffff;
+    box-shadow: 0 0 16px rgba(228, 138, 191, 0.2);
+    transition: box-shadow 0.3s;
 }
 
 /* Textarea */
@@ -62,43 +55,43 @@ textarea {
     padding: 1rem;
     font-size: 1.1rem;
     margin-bottom: 2rem;
-    background-color: #1e1e1e;
-    color: #e0e0e0;
-    border: 1px solid #333;
+    background-color: #ffffff;
+    color: #222;
+    border: 1px solid #ccc;
     border-radius: 10px;
+    box-shadow: 0 0 8px rgba(228, 138, 191, 0.1);
     resize: vertical;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-
 textarea:focus {
-    border-color: #d3b7ff;
+    border-color: #e48abf;
+    box-shadow: 0 0 12px rgba(228, 138, 191, 0.3);
     outline: none;
 }
 
 textarea::placeholder {
-    color: #bb86fc;
+    color: #e48abf;
 }
 
 /* Button */
 button {
     padding: 0.75rem 2rem;
-    background-color: #bb86fc;
-    color: #121212;
+    background-color: #e48abf;
+    color: #fff;
     border: none;
     border-radius: 10px;
     font-size: 1.1rem;
     cursor: pointer;
     align-self: center;
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 button:hover {
-    background-color: #9a6dfc;
+    background-color: #d377ad;
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
 /* Message List */
@@ -111,24 +104,28 @@ button:hover {
 }
 
 /* Individual Message Card */
-
 .message {
     padding: 2rem;
     border-radius: 12px;
-    background: linear-gradient(135deg, #1e1e1e, #191919);
-    border: 1px solid #333;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.08);
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-    min-height: 250px; /* new fixed height */
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(228, 138, 191, 0.1);
+    transition: transform 0.2s, box-shadow 0.3s;
+    min-height: 250px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
 }
 
+.message:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(228, 138, 191, 0.25);
+}
+
 .message time {
     display: block;
     font-size: 0.85rem;
-    color: #aaa;
+    color: #666;
     margin-bottom: 1rem;
     text-align: left;
 }
@@ -140,109 +137,49 @@ button:hover {
     justify-content: center;
     font-size: 1.1rem;
     line-height: 1.5;
-    color: #e0e0e0;
+    color: #e48abf;
     text-align: center;
+    text-shadow: 0 0 4px rgba(228, 138, 191, 0.35);
     padding: 0.5rem;
-}
-
-.message:hover {
-    transform: translateY(-3px) scale(1.015);
-    box-shadow: 0 6px 14px rgba(255, 255, 255, 0.15);
 }
 
 /* Error Pages */
 .error-message {
     text-align: center;
     padding: 5rem 2rem;
-    background: linear-gradient(135deg, #1e1e1e, #121212);
+    background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 }
 
 .error-message h1 {
     margin-bottom: 1rem;
     text-align: center;
+    color: #e48abf;
 }
 
 .error-message p {
     font-size: 1.2rem;
-    color: #aaa;
+    color: #555;
     text-align: center;
 }
 
-/* Mobile View — Light Theme */
+/* Responsive Adjustments */
 @media (max-width: 1000px) {
-    body {
-        background-color: #f5f5f5;
-        color: #222;
-    }
-
-    h1 {
-        color: #e48abf;
-        text-shadow: none;
+    .page-container {
+        padding: 2rem 1rem;
     }
 
     form {
-        background: #ffffff;
-        box-shadow: 0 0 16px rgba(228, 138, 191, 0.2);
-        border-radius: 12px;
-        padding: 2rem;
-        transition: box-shadow 0.3s;
+        padding: 1.5rem;
     }
 
     textarea {
-        background-color: #ffffff;
-        color: #222;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        box-shadow: 0 0 8px rgba(228, 138, 191, 0.15);
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
-
-    textarea:focus {
-        border-color: #e48abf;
-        box-shadow: 0 0 12px rgba(228, 138, 191, 0.3);
-        outline: none;
-    }
-
-    textarea::placeholder {
-        color: #e48abf;
-    }
-
-    button {
-        background-color: #e48abf;
-        color: #fff;
-    }
-
-    button:hover {
-        background-color: #d377ad;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+        min-height: 200px;
     }
 
     .message {
-        background-color: #ffffff;
-        border: 1px solid #ccc;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .message:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .message time {
-        color: #666;
-    }
-
-    .message-content {
-        color: #333;
-    }
-
-    .error-message {
-        background: #fff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .error-message p {
-        color: #555;
+        padding: 1.5rem;
+        min-height: 200px;
     }
 }
