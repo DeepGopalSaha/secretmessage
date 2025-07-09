@@ -2,7 +2,8 @@ pub mod db;
 
 use actix_files::Files;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use chrono::Local;
+use chrono::Utc;
+use chrono_tz::Asia::Kolkata;
 use flexi_logger::{Duplicate, FileSpec, Logger, WriteMode};
 use log::{error, info};
 use serde::{Deserialize, Serialize};
@@ -36,7 +37,10 @@ async fn handle_submit(
     pool: web::Data<SqlitePool>,
     tmpl: web::Data<Tera>,
 ) -> impl Responder {
-    let dt = Local::now().format("%d/%m/%Y %H:%M:%S").to_string();
+    let dt = Utc::now()
+        .with_timezone(&Kolkata)
+        .format("%d/%m/%Y %H:%M:%S")
+        .to_string();
 
     let ctx = Context::new(); //used to pass variables to the webpage
     let server_error_page = match tmpl.render("501.html", &ctx) {
