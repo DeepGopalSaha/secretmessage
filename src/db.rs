@@ -51,3 +51,13 @@ pub async fn fetch_all(pool: &SqlitePool) -> Result<Vec<FetchedMessage>, Box<dyn
     info!("db.rs - All messages from database is fetched");
     Ok(results)
 }
+
+pub async fn delete_all(pool: &SqlitePool) -> Result<(), Box<dyn Error>> {
+    let query = "
+        DELETE FROM secret;
+        DELETE FROM sqlite_sequence WHERE name='secret';
+    ";
+    sqlx::query(query).execute(pool).await?;
+
+    Ok(())
+}
