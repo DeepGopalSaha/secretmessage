@@ -1,6 +1,6 @@
 pub mod db;
 
-use actix_files::{Files, NamedFile};
+use actix_files::Files;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use chrono::Local;
 use flexi_logger::{Duplicate, FileSpec, Logger, WriteMode};
