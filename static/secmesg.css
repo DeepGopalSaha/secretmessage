@@ -8,6 +8,9 @@ html, body {
     min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
     box-sizing: border-box;
+    background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02) 0%, transparent 70%);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 *, *::before, *::after {
@@ -29,22 +32,29 @@ h1 {
     margin-bottom: 2rem;
     color: #bb86fc;
     text-align: center;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
 }
 
 /* Forms */
-
 
 form {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(34,34,34,0.6), rgba(18,18,18,0.9));
+    box-shadow:
+        0 0 20px rgba(180, 134, 252, 0.3),
+        0 0 20px rgba(187, 134, 252, 0.2),
+        0 8px 20px rgba(0,0,0,0.4);
+    transition: box-shadow 0.3s, background-color 0.3s;
 }
 
-
+/* Textarea */
 textarea {
     flex: 1;
     width: 100%;
@@ -55,28 +65,40 @@ textarea {
     background-color: #1e1e1e;
     color: #e0e0e0;
     border: 1px solid #333;
-    border-radius: 6px;
+    border-radius: 10px;
     resize: vertical;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+
+textarea:focus {
+    border-color: #d3b7ff;
+    outline: none;
 }
 
 textarea::placeholder {
-    color: #888;
+    color: #bb86fc;
 }
 
+/* Button */
 button {
     padding: 0.75rem 2rem;
     background-color: #bb86fc;
     color: #121212;
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     font-size: 1.1rem;
     cursor: pointer;
     align-self: center;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 button:hover {
     background-color: #9a6dfc;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.5);
 }
 
 /* Message List */
@@ -88,37 +110,53 @@ button:hover {
     max-width: 800px;
 }
 
-.message {
-    padding: 1rem;
-    border-radius: 8px;
-    background-color: #1e1e1e;
-    border: 1px solid #333;
-    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.08);
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-}
+/* Individual Message Card */
 
-.message:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+.message {
+    padding: 2rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1e1e1e, #191919);
+    border: 1px solid #333;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+    min-height: 250px; /* new fixed height */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .message time {
     display: block;
     font-size: 0.85rem;
     color: #aaa;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: left;
 }
 
 .message-content {
-    font-size: 1.05rem;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
     line-height: 1.5;
     color: #e0e0e0;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.message:hover {
+    transform: translateY(-3px) scale(1.015);
+    box-shadow: 0 6px 14px rgba(255, 255, 255, 0.15);
 }
 
 /* Error Pages */
 .error-message {
     text-align: center;
     padding: 5rem 2rem;
+    background: linear-gradient(135deg, #1e1e1e, #121212);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
 }
 
 .error-message h1 {
@@ -141,16 +179,34 @@ button:hover {
 
     h1 {
         color: #e48abf;
+        text-shadow: none;
+    }
+
+    form {
+        background: #ffffff;
+        box-shadow: 0 0 16px rgba(228, 138, 191, 0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        transition: box-shadow 0.3s;
     }
 
     textarea {
         background-color: #ffffff;
         color: #222;
         border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 8px rgba(228, 138, 191, 0.15);
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    textarea:focus {
+        border-color: #e48abf;
+        box-shadow: 0 0 12px rgba(228, 138, 191, 0.3);
+        outline: none;
     }
 
     textarea::placeholder {
-        color: #999;
+        color: #e48abf;
     }
 
     button {
@@ -160,6 +216,7 @@ button:hover {
 
     button:hover {
         background-color: #d377ad;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
     }
 
     .message {
@@ -178,6 +235,11 @@ button:hover {
 
     .message-content {
         color: #333;
+    }
+
+    .error-message {
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
     .error-message p {
