@@ -1,6 +1,6 @@
 pub mod db;
 
-use actix_files::Files;
+use actix_files::{Files, NamedFile};
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use chrono::Local;
 use flexi_logger::{Duplicate, FileSpec, Logger, WriteMode};
@@ -15,7 +15,6 @@ struct UserData {
     message: String,
 }
 
-#[get("/")]
 async fn home(tmpl: web::Data<Tera>) -> impl Responder {
     let ctx = Context::new(); //used to pass variables to the webpage
     let index_page = match tmpl.render("index.html", &ctx) {
@@ -202,7 +201,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .app_data(web::Data::new(dbpool.clone()))
             .app_data(tera.clone())
             .service(Files::new("/static", &static_path).show_files_listing())
-            .service(home)
+            .route("/", web::get().to(home))
+            .route("/", web::head().to(home))
             .service(handle_submit)
             .service(view_messages)
             .default_service(web::route().to(fallback))
