@@ -1,6 +1,7 @@
 pub mod db;
 
 use actix_files::Files;
+use actix_web::middleware::{NormalizePath, TrailingSlash};
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use chrono::Utc;
 use chrono_tz::Asia::Kolkata;
@@ -72,7 +73,7 @@ async fn handle_submit(
 
 #[derive(Deserialize)]
 struct VerID {
-    id: u32,
+    id: u64,
 }
 
 #[get("/messages/{id}")]
@@ -114,6 +115,42 @@ async fn view_messages(
         HttpResponse::Ok()
             .content_type("text/html")
             .body(message_page)
+    } else {
+        HttpResponse::Found()
+            .insert_header(("Location", "/"))
+            .finish()
+    }
+}
+
+#[get("/delmesg/{id}")]
+async fn delete_all_msg(
+    pool: web::Data<SqlitePool>,
+    tmpl: web::Data<Tera>,
+    path: web::Path<VerID>,
+) -> impl Responder {
+    if path.id == 963963 {
+        let ctx = Context::new(); //used to pass variables to the webpage
+        let server_error_page = match tmpl.render("501.html", &ctx) {
+            Ok(page) => page,
+            Err(e) => {
+                error!("Template render error: {}", e);
+                return HttpResponse::InternalServerError().body("Error rendering page");
+            }
+        };
+
+        match db::delete_all(&pool).await {
+            Ok(data) => data,
+            Err(e) => {
+                error!("Error due to {e}");
+                return HttpResponse::InternalServerError().body(server_error_page);
+            }
+        };
+
+        info!("All message data deleted");
+
+        HttpResponse::Found()
+            .insert_header(("Location", "/"))
+            .finish()
     } else {
         HttpResponse::Found()
             .insert_header(("Location", "/"))
@@ -202,6 +239,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(NormalizePath::new(TrailingSlash::Trim))
             .app_data(web::Data::new(dbpool.clone()))
             .app_data(tera.clone())
             .service(Files::new("/static", &static_path).show_files_listing())
@@ -209,6 +247,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .route("/", web::head().to(home))
             .service(handle_submit)
             .service(view_messages)
+            .service(delete_all_msg)
             .default_service(web::route().to(fallback))
     })
     .bind(&socket)
