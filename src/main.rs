@@ -8,7 +8,7 @@ use chrono_tz::Asia::Kolkata;
 use flexi_logger::{Duplicate, FileSpec, Logger, WriteMode};
 use log::{error, info};
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 use std::error::Error;
 use tera::{Context, Tera};
 
@@ -35,7 +35,7 @@ async fn home(tmpl: web::Data<Tera>) -> impl Responder {
 #[post("/submit")]
 async fn handle_submit(
     userdata: web::Form<UserData>,
-    pool: web::Data<SqlitePool>,
+    pool: web::Data<PgPool>,
     tmpl: web::Data<Tera>,
 ) -> impl Responder {
     let dt = Utc::now()
@@ -73,12 +73,12 @@ async fn handle_submit(
 
 #[derive(Deserialize)]
 struct VerID {
-    id: u64,
+    id: i32,
 }
 
 #[get("/messages/{id}")]
 async fn view_messages(
-    pool: web::Data<SqlitePool>,
+    pool: web::Data<PgPool>,
     tmpl: web::Data<Tera>,
     path: web::Path<VerID>,
 ) -> impl Responder {
@@ -122,39 +122,19 @@ async fn view_messages(
     }
 }
 
-#[get("/delmesg/{id}")]
-async fn delete_all_msg(
-    pool: web::Data<SqlitePool>,
-    tmpl: web::Data<Tera>,
-    path: web::Path<VerID>,
-) -> impl Responder {
-    if path.id == 963963 {
-        let ctx = Context::new(); //used to pass variables to the webpage
-        let server_error_page = match tmpl.render("501.html", &ctx) {
-            Ok(page) => page,
-            Err(e) => {
-                error!("Template render error: {}", e);
-                return HttpResponse::InternalServerError().body("Error rendering page");
-            }
-        };
+#[post("/delete_mesg/{id}")]
+async fn delete_single_message(pool: web::Data<PgPool>, path: web::Path<VerID>) -> impl Responder {
+    let id = path.id;
+    info!("Deleting message with id:{}", id);
 
-        match db::delete_all(&pool).await {
-            Ok(data) => data,
-            Err(e) => {
-                error!("Error due to {e}");
-                return HttpResponse::InternalServerError().body(server_error_page);
-            }
-        };
-
-        info!("All message data deleted");
-
-        HttpResponse::Found()
-            .insert_header(("Location", "/"))
-            .finish()
-    } else {
-        HttpResponse::Found()
-            .insert_header(("Location", "/"))
-            .finish()
+    match db::delete_mesg(&pool, id).await {
+        Ok(_) => HttpResponse::Found()
+            .insert_header(("Location", "/messages/121121"))
+            .finish(),
+        Err(e) => {
+            error!("Failed to delete message: {}", e);
+            HttpResponse::InternalServerError().body("Failed to delete message")
+        }
     }
 }
 
@@ -198,9 +178,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .start()
         .unwrap();
 
-    let db_path = std::env::var("DB_PATH").unwrap_or_else(|e| {
-        info!("Cannot find any variable DB_PATH in env file due to error: {e}");
-        panic!("Missing DB_PATH");
+    let db_url = std::env::var("DB_URL").unwrap_or_else(|e| {
+        info!("Cannot find any variable DB_URL in env file due to error: {e}");
+        panic!("Missing DB_URL");
     });
 
     /*let socket_ip = std::env::var("IP").unwrap_or_else(|e| {
@@ -221,7 +201,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         panic!("Cannot find STATIC_PATH in env file");
     });
 
-    let dbpool = db::db_init(&db_path).await.unwrap_or_else(|e| {
+    let dbpool = db::db_init(&db_url).await.unwrap_or_else(|e| {
         error!("Database init failed due to :{e}");
         panic!("Database init failed due to :{e}");
     });
@@ -247,7 +227,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .route("/", web::head().to(home))
             .service(handle_submit)
             .service(view_messages)
-            .service(delete_all_msg)
+            .service(delete_single_message)
             .default_service(web::route().to(fallback))
     })
     .bind(&socket)

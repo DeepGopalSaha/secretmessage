@@ -1,31 +1,49 @@
 use log::info;
 use serde::Serialize;
-use sqlx::{Row, SqlitePool};
+use sqlx::{postgres::PgPoolOptions, PgPool, Row};
 use std::error::Error;
 
 #[derive(Serialize)]
 pub struct FetchedMessage {
-    pub id: i64,
+    pub id: i32,
     pub timestamp: String,
     pub message: String,
 }
 
-pub async fn db_init(db_path: &str) -> Result<SqlitePool, Box<dyn Error>> {
-    let pool = match SqlitePool::connect(db_path).await {
+pub async fn db_init(db_url: &str) -> Result<PgPool, Box<dyn Error>> {
+    let pool = match PgPoolOptions::new()
+        .max_connections(5)
+        .connect(db_url)
+        .await
+    {
         Ok(p) => p,
         Err(e) => panic!("cannot connect to db due to {e}"),
     };
 
-    info!("db.rs  - Connection to database is successful");
+    let query = "create table if not exists secret(
+        id serial primary key,
+        timestamp text not null,
+        message text not null
+    )";
+
+    sqlx::query(query).execute(&pool).await?;
+
+    info!(
+        "db.rs  - Connection to supabase database is successful and table created if not existed"
+    );
+    println!(
+        "db.rs - Connection to supabase database is successful and table created if not existed"
+    );
+
     Ok(pool)
 }
 
 pub async fn insert_data(
-    pool: &SqlitePool,
+    pool: &PgPool,
     timestamp: &str,
     message: &str,
 ) -> Result<(), Box<dyn Error>> {
-    sqlx::query("INSERT into secret (timestamp,message) values (?,?)")
+    sqlx::query("INSERT into secret (timestamp,message) values ($1,$2)")
         .bind(timestamp)
         .bind(message)
         .execute(pool)
@@ -34,7 +52,7 @@ pub async fn insert_data(
     Ok(())
 }
 
-pub async fn fetch_all(pool: &SqlitePool) -> Result<Vec<FetchedMessage>, Box<dyn Error>> {
+pub async fn fetch_all(pool: &PgPool) -> Result<Vec<FetchedMessage>, Box<dyn Error>> {
     let query = "select id,timestamp,message from secret";
 
     let rows = sqlx::query(query).fetch_all(pool).await?;
@@ -52,7 +70,14 @@ pub async fn fetch_all(pool: &SqlitePool) -> Result<Vec<FetchedMessage>, Box<dyn
     Ok(results)
 }
 
-pub async fn delete_all(pool: &SqlitePool) -> Result<(), Box<dyn Error>> {
+pub async fn delete_mesg(pool: &PgPool, id: i32) -> Result<(), Box<dyn Error>> {
+    let query = "delete from secret where id = $1";
+
+    sqlx::query(query).bind(id).execute(pool).await?;
+    Ok(())
+}
+
+/*pub async fn delete_all(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     let query = "
         DELETE FROM secret;
         DELETE FROM sqlite_sequence WHERE name='secret';
@@ -60,4 +85,4 @@ pub async fn delete_all(pool: &SqlitePool) -> Result<(), Box<dyn Error>> {
     sqlx::query(query).execute(pool).await?;
 
     Ok(())
-}
+}*/

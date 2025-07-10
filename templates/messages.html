@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Message List</title>
-    <link rel="stylesheet" href="/static/secmesg.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&family=Rubik+Bubbles&display=swap" rel="stylesheet">
-
-
-
+  <meta charset="UTF-8">
+  <title>Message List</title>
+  <link rel="stylesheet" href="/static/secmesg.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&family=Rubik+Bubbles&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="page-container">
-        <h1>All Messages</h1>
-        <div class="message-list">
-            {% for msg in secret_messages %}
-                <div class="message">
-                    <time>{{ msg.timestamp }}</time>
-                    <div class="message-content">{{ msg.message }}</div>
-                </div>
-            {% endfor %}
-        </div>
+  <div class="page-container">
+    <h1>All Messages</h1>
+
+    <div class="message-list">
+      {% for msg in secret_messages %}
+        <div class="message-row" style="position: relative;">
+          <div class="message">
+            <time>{{ msg.timestamp }}</time>
+            <div class="message-content">{{ msg.message }}</div>
+          </div>
+          <div class="delete-form-box">
+            <form action="/delete_mesg/{{msg.id}}" method="POST" class="delete-form">
+              <button type="submit" class="delete-button">✖</button>
+            </form>
+          </div>
+        </div>      
+    {% endfor %}
     </div>
+
+  </div>
 </body>
 </html>
