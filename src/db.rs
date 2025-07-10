@@ -20,13 +20,17 @@ pub async fn db_init(db_url: &str) -> Result<PgPool, Box<dyn Error>> {
         Err(e) => panic!("cannot connect to db due to {e}"),
     };
 
+    Ok(pool)
+}
+
+pub async fn create_table(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     let query = "create table if not exists secret(
         id serial primary key,
         timestamp text not null,
         message text not null
     )";
 
-    sqlx::query(query).execute(&pool).await?;
+    sqlx::query(query).execute(pool).await?;
 
     info!(
         "db.rs  - Connection to supabase database is successful and table created if not existed"
@@ -35,7 +39,7 @@ pub async fn db_init(db_url: &str) -> Result<PgPool, Box<dyn Error>> {
         "db.rs - Connection to supabase database is successful and table created if not existed"
     );
 
-    Ok(pool)
+    Ok(())
 }
 
 pub async fn insert_data(

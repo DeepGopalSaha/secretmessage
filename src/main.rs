@@ -11,14 +11,20 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::error::Error;
 use tera::{Context, Tera};
-use tokio::net::TcpStream;
 
 #[derive(Serialize, Deserialize)]
 struct UserData {
     message: String,
 }
 
-async fn home(tmpl: web::Data<Tera>) -> impl Responder {
+async fn home(pool: web::Data<PgPool>, tmpl: web::Data<Tera>) -> impl Responder {
+    match db::create_table(&pool).await {
+        Ok(f) => f,
+        Err(e) => {
+            error!("Problem in creating table in database due to {}", e);
+            panic!("Problem in creating table in database due to {}", e);
+        }
+    };
     let ctx = Context::new(); //used to pass variables to the webpage
     let index_page = match tmpl.render("index.html", &ctx) {
         Ok(page) => page,
@@ -31,14 +37,6 @@ async fn home(tmpl: web::Data<Tera>) -> impl Responder {
     HttpResponse::Ok()
         .content_type("text/html")
         .body(index_page)
-}
-
-#[get("/nettest")]
-async fn net_test() -> HttpResponse {
-    match TcpStream::connect("db.jpogzpxmojratlnoxozq.supabase.co:5432").await {
-        Ok(_) => HttpResponse::Ok().body("TCP connection successful"),
-        Err(e) => HttpResponse::Ok().body(format!("TCP connection failed: {}", e)),
-    }
 }
 
 #[post("/submit")]
@@ -210,10 +208,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         panic!("Cannot find STATIC_PATH in env file");
     });
 
-    let dbpool = db::db_init(&db_url).await.unwrap_or_else(|e| {
-        error!("Database init failed due to :{e}");
-        panic!("Database init failed due to :{e}");
-    });
+    let dbpool = db::db_init(&db_url)
+        .await
+        .expect("DB init failed during startup");
 
     let tera = web::Data::new(match Tera::new(&template_path) {
         Ok(t) => t,
@@ -235,7 +232,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .route("/", web::get().to(home))
             .route("/", web::head().to(home))
             .service(handle_submit)
-            .service(net_test)
             .service(view_messages)
             .service(delete_single_message)
             .default_service(web::route().to(fallback))
