@@ -11,14 +11,10 @@ pub struct FetchedMessage {
 }
 
 pub async fn db_init(db_url: &str) -> Result<PgPool, Box<dyn Error>> {
-    let pool = match PgPoolOptions::new()
+    let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(db_url)
-        .await
-    {
-        Ok(p) => p,
-        Err(e) => panic!("cannot connect to db due to {e}"),
-    };
+        .await?;
 
     Ok(pool)
 }
