@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::error::Error;
 use tera::{Context, Tera};
+use tokio::net::TcpStream;
 
 #[derive(Serialize, Deserialize)]
 struct UserData {
@@ -30,6 +31,14 @@ async fn home(tmpl: web::Data<Tera>) -> impl Responder {
     HttpResponse::Ok()
         .content_type("text/html")
         .body(index_page)
+}
+
+#[get("/nettest")]
+async fn net_test() -> HttpResponse {
+    match TcpStream::connect("db.jpogzpxmojratlnoxozq.supabase.co:5432").await {
+        Ok(_) => HttpResponse::Ok().body("TCP connection successful"),
+        Err(e) => HttpResponse::Ok().body(format!("TCP connection failed: {}", e)),
+    }
 }
 
 #[post("/submit")]
@@ -129,7 +138,7 @@ async fn delete_single_message(pool: web::Data<PgPool>, path: web::Path<VerID>) 
 
     match db::delete_mesg(&pool, id).await {
         Ok(_) => HttpResponse::Found()
-            .insert_header(("Location", "/messages/121121"))
+            .insert_header(("Location", "/message/121121"))
             .finish(),
         Err(e) => {
             error!("Failed to delete message: {}", e);
@@ -226,6 +235,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .route("/", web::get().to(home))
             .route("/", web::head().to(home))
             .service(handle_submit)
+            .service(net_test)
             .service(view_messages)
             .service(delete_single_message)
             .default_service(web::route().to(fallback))
